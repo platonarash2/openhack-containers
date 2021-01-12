@@ -35,6 +35,12 @@
             "metadata": {
                 "description": "Specifies the DNS prefix for the kubernetes cluster."
             }
+        },
+        "subnetId": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies the resource Id of the subnet."
+            }
         }
     },
     "functions": [],
@@ -43,9 +49,37 @@
         "aksName": "[parameters('aksName')]",
         "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
         "dnsPrefix": "[parameters('dnsPrefix')]",
-        "adminUserName": "[parameters('adminUserName')]"
+        "adminUserName": "[parameters('adminUserName')]",
+        "subnetId": "[parameters('subnetId')]",
+        "subnetName": "[last(split(variables('subnetId')))]",
+        "vnetName": "[last(split(variables('subnetId')))]"
     },
     "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "name": "ClusterSubnetRoleAssignmentDeployment",
+            "apiVersion": "2019-10-01",
+            "resourceGroup": "[parameters('existingVirtualNetworkResourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/virtualNetworks/subnets/providers/roleAssignments",
+                            "apiVersion": "2020-04-01-preview",
+                            "name": "[concat(parameters('existingVirtualNetworkName'), '/', variables('subnetName'), '/Microsoft.Authorization/', guid(resourceGroup().id, deployment().name))]",
+                            "properties": {
+                                "roleDefinitionId": "[variables('builtInRole')[parameters('builtInRoleType')]]",
+                                "principalId": "[parameters('existingServicePrincipalObjectId')]",
+                                "scope": "[variables('vnetSubnetId')]"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
         {
             "type": "Microsoft.ContainerService/managedClusters",
             "apiVersion": "2020-09-01",

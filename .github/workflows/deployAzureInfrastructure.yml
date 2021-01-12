@@ -1,0 +1,90 @@
+name: Azure Deployment
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/deployAzureInfrastructure.yml'
+  pull_request:
+
+env:
+  AZURE_SUBSCRIPTION_ID: '558bd446-4212-46a2-908c-9ab0a628705e'
+  AZURE_RESOURCE_GROUP_NAME: teamResources
+  AZURE_LOCATION: westeurope
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: Check Out Repository
+      id: checkout_repository
+      uses: actions/checkout@v2
+    
+    # Login to Azure
+    - name: Azure Login
+      id: azure_login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    # Deploy kubernetes - validation
+    - name: Deploy kubernetes - validation
+      id: kubernetes_validation
+      uses: azure/arm-deploy@v1
+      with:
+        scope: resourcegroup
+        subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP_NAME }}
+        region: ${{ env.AZURE_LOCATION }}
+        template: ${{ github.workspace }}/infra/Kubernetes/deploy.kubernetes.json
+        parameters: ${{ github.workspace }}/infra/Kubernetes/params.kubernetes001.json
+        deploymentMode: validate
+  
+  deployment:
+    needs: [ validation ]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: Check Out Repository
+      id: checkout_repository
+      uses: actions/checkout@v2
+    
+    # Login to Azure
+    - name: Azure Login
+      id: azure_login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    # Deploy kubernetes - validation
+    - name: Deploy kubernetes - validation
+      id: kubernetes_validation
+      uses: azure/arm-deploy@v1
+      with:
+        scope: resourcegroup
+        subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP_NAME }}
+        region: ${{ env.AZURE_LOCATION }}
+        template: ${{ github.workspace }}/infra/Kubernetes/deploy.kubernetes.json
+        parameters: ${{ github.workspace }}/infra/Kubernetes/params.kubernetes001.json
+        deploymentMode: Incremental
+    
+    # Deploy aks
+    - name: Deploy vnet
+      id: vnet_deployment
+      uses: azure/arm-deploy@v1
+      with:
+        scope: resourcegroup
+        subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP_NAME_MLFLOW }}
+        region: ${{ env.AZURE_LOCATION }}
+        template: ${{ github.workspace }}/infra/VirtualNetwork/deploy.vnet.json
+        parameters: ${{ github.workspace }}/infra/VirtualNetwork/params.vnet.json
+        deploymentMode: Incremental
