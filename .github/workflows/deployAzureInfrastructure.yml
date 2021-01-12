@@ -9,7 +9,7 @@ on:
   pull_request:
 
 env:
-  AZURE_SUBSCRIPTION_ID: '558bd446-4212-46a2-908c-9ab0a628705e'
+  AZURE_SUBSCRIPTION_ID: '4631b064-cd36-4785-99b7-195ab94da98b'
   AZURE_RESOURCE_GROUP_NAME: teamResources
   AZURE_LOCATION: westeurope
 
@@ -30,6 +30,19 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    # Deploy vnet - validation
+    - name: Deploy vnet - validation
+      id: vnet_validation
+      uses: azure/arm-deploy@v1
+      with:
+        scope: resourcegroup
+        subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP_NAME_MLFLOW }}
+        region: ${{ env.AZURE_LOCATION }}
+        template: ${{ github.workspace }}/infra/VirtualNetwork/deploy.vnet.json
+        parameters: ${{ github.workspace }}/infra/VirtualNetwork/params.vnet001.json
+        deploymentMode: validate
     
     # Deploy kubernetes - validation
     - name: Deploy kubernetes - validation
@@ -63,19 +76,6 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     
-    # Deploy kubernetes - validation
-    - name: Deploy kubernetes - validation
-      id: kubernetes_validation
-      uses: azure/arm-deploy@v1
-      with:
-        scope: resourcegroup
-        subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
-        resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP_NAME }}
-        region: ${{ env.AZURE_LOCATION }}
-        template: ${{ github.workspace }}/infra/Kubernetes/deploy.kubernetes.json
-        parameters: ${{ github.workspace }}/infra/Kubernetes/params.kubernetes001.json
-        deploymentMode: Incremental
-    
     # Deploy aks
     - name: Deploy vnet
       id: vnet_deployment
@@ -86,5 +86,18 @@ jobs:
         resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP_NAME_MLFLOW }}
         region: ${{ env.AZURE_LOCATION }}
         template: ${{ github.workspace }}/infra/VirtualNetwork/deploy.vnet.json
-        parameters: ${{ github.workspace }}/infra/VirtualNetwork/params.vnet.json
+        parameters: ${{ github.workspace }}/infra/VirtualNetwork/params.vnet001.json
+        deploymentMode: Incremental
+    
+    # Deploy kubernetes
+    - name: Deploy kubernetes
+      id: kubernetes_deployment
+      uses: azure/arm-deploy@v1
+      with:
+        scope: resourcegroup
+        subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP_NAME }}
+        region: ${{ env.AZURE_LOCATION }}
+        template: ${{ github.workspace }}/infra/Kubernetes/deploy.kubernetes.json
+        parameters: ${{ github.workspace }}/infra/Kubernetes/params.kubernetes001.json
         deploymentMode: Incremental
