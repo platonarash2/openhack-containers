@@ -2,12 +2,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: userjava
+  namespace: tripinsights-dev
   labels:
     run: userjava
 spec:
+  type: ClusterIP
+  selector:
+    app: userjava
   ports:
   - port: 8080
     targetPort: 80
     protocol: TCP
-  selector:
-    app: userjava

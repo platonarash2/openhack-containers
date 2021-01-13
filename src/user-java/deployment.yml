@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: userjava
+  namespace: tripinsights-dev
+  labels:
+    app: userjava
 spec:
   replicas: 1
   selector:
