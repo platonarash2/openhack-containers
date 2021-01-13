@@ -6,7 +6,7 @@ metadata:
   labels:
     run: tripviewer
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: tripviewer
   ports:
