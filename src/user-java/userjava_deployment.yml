@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userjava
+  namespace: tripinsights-dev
+  labels:
+    app: userjava
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userjava
+  template:
+    metadata:
+      labels:
+        app: userjava
+    spec:
+      containers:
+        - name: userjava
+          image: registryjrj5155/userjava:latest
+          env:
+            - name: SQL_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: sqluser #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
+                    key: sqluser #this must match the kv configuration in the yaml under secretObjects
+            - name: SQL_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: sqlpassword #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
+                    key: sqlpassword #this must match the kv configuration in the yaml under secretObjects
+            - name: SQL_SERVER
+                valueFrom:
+                  secretKeyRef:
+                    name: sqlserver #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
+                    key: sqlserver #this must match the kv configuration in the yaml under secretObjects
+            - name: SQL_DBNAME
+              value: "mydrivingDB"
+            - name: PORT
+              value: "80"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          ports:
+            - containerPort: 80
+                name: userjava
+              volumeMounts:
+                - name: secrets-store-inline
+                  mountPath: "/mnt/secrets-store"
+                  readOnly: true
