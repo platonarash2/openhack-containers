@@ -15,33 +15,49 @@ spec:
       labels:
         app: poi
     spec:
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-sync"
       containers:
-      - name: poi
-        image: registryjrj5155/poi:latest
-        env:
-        - name: SQL_USER
-          value: "sqladminjRj5155"
-        - name: SQL_PASSWORD
-          value: "<secure-password>"
-        - name: SQL_SERVER
-          value: "sqlserverjrj5155.database.windows.net"
-        - name: SQL_DBNAME
-          value: "mydrivingDB"
-        - name: WEB_PORT
-          value: "80"
-        - name: WEB_SERVER_BASE_URI
-          value: "http://0.0.0.0"
-        - name: ASPNETCORE_ENVIRONMENT
-          value: "Development"
-        - name: CONFIG_FILES_PATH
-          value: "/secrets"
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 250m
-            memory: 256Mi
-        ports:
-        - containerPort: 80
-          name: poi
+        - name: poi
+          image: registryjrj5155/poi:latest
+          env:
+            - name: SQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sqluser     #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
+                  key: sqluser      #this must match the kv configuration in the yaml under secretObjects
+            - name: SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sqlpassword #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
+                  key: sqlpassword  #this must match the kv configuration in the yaml under secretObjects
+            - name: SQL_SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: sqlserver   #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
+                  key: sqlserver    #this must match the kv configuration in the yaml under secretObjects
+            - name: SQL_DBNAME
+              value: "mydrivingDB"
+            - name: WEB_PORT
+              value: "80"
+            - name: WEB_SERVER_BASE_URI
+              value: "http://0.0.0.0"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: CONFIG_FILES_PATH
+              value: "/secrets"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          ports:
+            - containerPort: 80
+              name: poi
