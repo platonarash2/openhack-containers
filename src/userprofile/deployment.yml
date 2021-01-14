@@ -15,6 +15,13 @@ spec:
       labels:
         app: userprofile
     spec:
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-sync"
       containers:
       - name: userprofile
         image: registryjrj5155/userprofile:latest
