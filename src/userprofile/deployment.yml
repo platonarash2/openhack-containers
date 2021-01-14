@@ -20,11 +20,20 @@ spec:
         image: registryjrj5155/userprofile:latest
         env:
         - name: SQL_USER
-          value: "sqladminjRj5155"
+          valueFrom:
+            secretKeyRef:
+              name: sqluser #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
+              key: sqluser #this must match the kv configuration in the yaml under secretObjects
         - name: SQL_PASSWORD
-          value: "<secure-password>"
+            valueFrom:
+              secretKeyRef:
+                name: sqlpassword #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
+                key: sqlpassword #this must match the kv configuration in the yaml under secretObjects
         - name: SQL_SERVER
-          value: "sqlserverjrj5155.database.windows.net"
+            valueFrom:
+              secretKeyRef:
+                name: sqlserver #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
+                key: sqlserver #this must match the kv configuration in the yaml under secretObjects      
         - name: SQL_DBNAME
           value: "mydrivingDB"
         - name: CONFIG_FILES_PATH
@@ -41,3 +50,7 @@ spec:
         ports:
         - containerPort: 80
           name: userprofile
+        volumeMounts:
+          - name: secrets-store-inline
+            mountPath: "/mnt/secrets-store"
+            readOnly: true
