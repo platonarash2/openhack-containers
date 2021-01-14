@@ -32,15 +32,15 @@ spec:
                 name: sqluser #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
                 key: sqluser #this must match the kv configuration in the yaml under secretObjects
           - name: SQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: sqlpassword #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
-                  key: sqlpassword #this must match the kv configuration in the yaml under secretObjects
+            valueFrom:
+              secretKeyRef:
+                name: sqlpassword #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
+                key: sqlpassword #this must match the kv configuration in the yaml under secretObjects
           - name: SQL_SERVER
-              valueFrom:
-                secretKeyRef:
-                  name: sqlserver #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
-                  key: sqlserver #this must match the kv configuration in the yaml under secretObjects      
+            valueFrom:
+              secretKeyRef:
+                name: sqlserver #k8s secret name. (kubectl get secret). this is auto synced during creation and deletion of the POD
+                key: sqlserver #this must match the kv configuration in the yaml under secretObjects      
           - name: SQL_DBNAME
             value: "mydrivingDB"
           - name: CONFIG_FILES_PATH
