@@ -15,6 +15,13 @@ spec:
       labels:
         app: userjava
     spec:
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-sync"
       containers:
         - name: userjava
           image: registryjrj5155/userjava:latest
