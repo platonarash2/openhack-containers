@@ -50,7 +50,7 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: "Development"
             - name: CONFIG_FILES_PATH
-              value: "/mnt/secrets-store"
+              value: "/secrets"
           resources:
             requests:
               cpu: 100m
@@ -63,5 +63,5 @@ spec:
               name: poi
           volumeMounts:
             - name: secrets-store-inline
-              mountPath: "/secrets"
+              mountPath: "/mnt/secrets-store"
               readOnly: true
