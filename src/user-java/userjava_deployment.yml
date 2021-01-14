@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: userjava
-  namespace: tripinsights-dev
+  namespace: api-dev
   labels:
     app: userjava
 spec:
@@ -24,7 +24,7 @@ spec:
               secretProviderClass: "azure-sync"
       containers:
         - name: userjava
-          image: registryjrj5155/userjava:latest
+          image: registryjrj5155.azurecr.io/tripinsights/user-java:latest
           env:
             - name: SQL_USER
                 valueFrom:
