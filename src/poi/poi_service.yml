@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: poi
-  namespace: tripinsights-dev
+  namespace: api-dev
   labels:
     run: poi
 spec:

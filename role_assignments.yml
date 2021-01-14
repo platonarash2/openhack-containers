@@ -1,0 +1,58 @@
+# API Dev Team - Viewer RoleBinding to web-dev namespace
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: web-dev-viewer
+  namespace: web-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: viewer
+subjects:
+- kind: Group
+  name: 62990824-372e-4251-b874-259831a2e9af
+
+---
+# Web Dev Team - Editor RoleBinding to web-dev namespace
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: web-dev-editor
+  namespace: web-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: editor
+subjects:
+- kind: Group
+  name: c05e020e-f226-4ae8-ab43-689222163832
+
+---
+# API Dev Team - Editor RoleBinding to api-dev namespace
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: api-dev-editor
+  namespace: api-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: editor
+subjects:
+- kind: Group
+  name: 62990824-372e-4251-b874-259831a2e9af
+
+---
+# Web Dev Team - Viewer RoleBinding to api-dev namespace
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: api-dev-viewer
+  namespace: api-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: viewer
+subjects:
+- kind: Group
+  name: c05e020e-f226-4ae8-ab43-689222163832
