@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trips
+  namespace: api-dev
+  labels:
+    app: trips
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trips
+  template:
+    metadata:
+      labels:
+        app: trips
+    spec:
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-sync"
+      containers:
+        - name: trips
+          image: registryjrj5155.azurecr.io/tripinsights/trips:latest
+          env:
+            - name: SQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sqluser
+                  key: sqluser
+            - name: SQL_PASSWORD
+              secretKeyRef:
+                name: sqlpassword
+                key: sqlpassword
+            - name: SQL_SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: sqlserver
+                  key: sqlserver
+            - name: SQL_DBNAME
+              value: "mydrivingDB"
+            - name: PORT
+              value: "80"
+            - name: OPENAPI_DOCS_URI
+              value: "http://changeme"
+            - name: DEBUG_LOGGING
+              value: "false"
+            - name: CONFIG_FILES_PATH
+              value: "/secrets"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          ports:
+            - containerPort: 80
+              name: trips
+          volumeMounts:
+            - name: secrets-store-inline
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
